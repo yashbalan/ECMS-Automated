@@ -12,22 +12,30 @@ st.set_page_config(layout="wide", page_title="Hopcharge Dashboard", page_icon=":
 
 import firebase_admin
 from firebase_admin import credentials, auth as admin_auth
-
+import pyrebase
 
 # Path to your service account key JSON file
 SERVICE_ACCOUNT_KEY = r"hopcharge-ecms-firebase-adminsdk-v6db1-1d76969b4b.json"
 
-# Firebase configuration (if using a Realtime Database)
+# Initialize Firebase Admin SDK
+cred = credentials.Certificate(SERVICE_ACCOUNT_KEY)
+firebase_admin.initialize_app(cred)
+
+# Firebase configuration for client-side operations
 firebaseConfig = {
-    "databaseURL": "https://hopcharge-ecms.firebaseio.com"  # Replace with your actual database URL if needed
+    "apiKey": "AIzaSyA2jF3fovbqY1cjuW8Z5VMtKG_e1gqisdI",
+    "authDomain": "hopcharge-ecms.firebaseapp.com",
+    "databaseURL": "https://hopcharge-ecms.firebaseio.com",  # Replace with your actual database URL
+    "projectId": "hopcharge-ecms",
+    "storageBucket": "hopcharge-ecms.appspot.com",
+    "messagingSenderId": "284192454217",
+    "appId": "1:284192454217:web:22ff10cd68580a1cec3198",
+    "measurementId": "G-YVNJXKGM9X"
 }
 
-# Initialize Firebase Admin SDK
-try:
-    cred = credentials.Certificate(SERVICE_ACCOUNT_KEY)
-    firebase_admin.initialize_app(cred, firebaseConfig)
-except ValueError as e:
-    st.error(f"Failed to initialize Firebase Admin SDK: {e}")
+# Initialize Firebase for client-side operations
+firebase = pyrebase.initialize_app(firebaseConfig)
+client_auth = firebase.auth()
 
 # Registered users
 REGISTERED_USERS = {
