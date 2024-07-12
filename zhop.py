@@ -10,8 +10,29 @@ import random
 
 st.set_page_config(layout="wide", page_title="Hopcharge Dashboard", page_icon=":bar_chart:")
 
-# OTPLESS configuration
-OTPLESS_APP_ID = 'LGKKX2K2DHXYIVBZUG6T'
+import firebase_admin
+from firebase_admin import credentials, auth as admin_auth
+import pyrebase
+
+# Firebase configuration
+firebaseConfig = {
+    "apiKey": "AIzaSyA2jF3fovbqY1cjuW8Z5VMtKG_e1gqisdI",
+    "authDomain": "hopcharge-ecms.firebaseapp.com",
+    "databaseURL": "https://hopcharge-ecms.firebaseio.com",
+    "projectId": "hopcharge-ecms",
+    "storageBucket": "hopcharge-ecms.appspot.com",
+    "messagingSenderId": "284192454217",
+    "appId": "1:284192454217:web:22ff10cd68580a1cec3198",
+    "measurementId": "G-YVNJXKGM9X"
+}
+
+# Initialize Firebase
+firebase = pyrebase.initialize_app(firebaseConfig)
+auth = firebase.auth()
+
+# Initialize Firebase Admin SDK
+cred = credentials.Certificate(r"C:\Users\DELL\Downloads\hopcharge-ecms-firebase-adminsdk-v6db1-1d76969b4b.json")
+firebase_admin.initialize_app(cred)
 
 # Registered users
 REGISTERED_USERS = {
@@ -19,8 +40,8 @@ REGISTERED_USERS = {
     "+918168483335": "vishalsaini1272007@gmail.com"
 }
 
-# Function to initiate OTPLESS authentication
-def initiate_otpless_authentication():
+# Function to initiate Firebase OTP authentication
+def initiate_firebase_authentication():
     st.markdown(
         """
             <style>
@@ -37,30 +58,38 @@ def initiate_otpless_authentication():
 
     image = Image.open('LOGO HOPCHARGE-03.png')
     col2.image(image, use_column_width=True)
-    col2.markdown("<h2 style='text-align: center;'>ECMS OTPLESS Login</h2>", unsafe_allow_html=True)
+    col2.markdown("<h2 style='text-align: center;'>ECMS Firebase OTP Login</h2>", unsafe_allow_html=True)
     image = Image.open('roaming vans.png')
     col1.image(image, use_column_width=True)
 
     with col2:
         phone_number = st.text_input("Enter Phone Number (with country code)")
+        email = st.text_input("Enter Email")
 
-    if st.button("Login with OTPLESS"):
-        if phone_number in REGISTERED_USERS:
-            otpless_url = f"https://otpless.com/appid/{OTPLESS_APP_ID}?phone_number={phone_number}"
-            st.write(f"Click [here]({otpless_url}) to log in via OTPLESS.")
+    if st.button("Send OTP"):
+        if phone_number in REGISTERED_USERS and REGISTERED_USERS[phone_number] == email:
             st.session_state["phone_number"] = phone_number
+            st.session_state["email"] = email
             st.session_state["otp_sent"] = True
+            verification_id = auth.send_verification_code(phone_number)
+            st.session_state["verification_id"] = verification_id
+            st.success("OTP has been sent to your registered phone number.")
         else:
-            st.warning("This phone number is not registered. Please use a registered phone number.")
+            st.warning("This phone number or email is not registered. Please use a registered phone number and email.")
 
-# Function to verify OTPLESS response
-def verify_otpless():
-    query_params = st.experimental_get_query_params()
-    if "otpless_token" in query_params:
-        st.session_state["logged_in"] = True
-        st.success("Successfully logged in via OTPLESS.")
-    else:
-        st.warning("Failed to log in via OTPLESS. Please try again.")
+# Function to verify Firebase OTP
+def verify_firebase_otp():
+    col1, col2, col3 = st.columns(3)
+    with col2:
+        otp_input = st.text_input("Enter OTP", type="password")
+        if st.button("Verify OTP"):
+            verification_id = st.session_state.get("verification_id")
+            try:
+                auth.verify_id_token(verification_id, otp_input)
+                st.session_state["logged_in"] = True
+                st.success("OTP verified successfully.")
+            except Exception as e:
+                st.warning(f"Invalid OTP. Please try again. Error: {str(e)}")
 
 # Function to clean license plates
 def clean_license_plate(plate):
@@ -197,9 +226,9 @@ else:
 
         if not st.session_state.logged_in:
             if not st.session_state.otp_sent:
-                initiate_otpless_authentication()
+                initiate_firebase_authentication()
             else:
-                verify_otpless()
+                verify_firebase_otp()
         else:
             st.markdown(
                 """
