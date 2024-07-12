@@ -17,20 +17,18 @@ TWILIO_SERVICE_SID = 'VA508bf49467f693f9e6e6ab94ef08190c'
 USER_PHONE_NUMBERS = ['+917206174107', '+918168483335']
 
 
+
 # Send OTP via Twilio
 def send_otp(phone_number):
     client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
     verification = client.verify.services(TWILIO_SERVICE_SID).verifications.create(to=phone_number, channel='sms')
     return verification.sid
 
-
 # Check OTP via Twilio
 def check_otp(phone_number, otp):
     client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-    verification_check = client.verify.services(TWILIO_SERVICE_SID).verification_checks.create(to=phone_number,
-                                                                                               code=otp)
+    verification_check = client.verify.services(TWILIO_SERVICE_SID).verification_checks.create(to=phone_number, code=otp)
     return verification_check.status
-
 
 # Function to initiate OTP authentication
 def initiate_otp_authentication():
@@ -56,19 +54,18 @@ def initiate_otp_authentication():
 
     with col2:
         phone_number = st.selectbox("Select Phone Number", USER_PHONE_NUMBERS)
-
+    
     if st.button("Send OTP"):
         send_otp(phone_number)
         st.session_state["phone_number"] = phone_number
         st.session_state["otp_sent"] = True
         st.success("OTP has been sent to your registered phone number.")
 
-
 # Function to verify OTP
 def verify_otp():
     col1, col2, col3 = st.columns(3)
     with col2:
-        otp_input = st.text_input("Enter OTP")
+        otp_input = st.text_input("Enter OTP", type="password")
         if st.button("Verify OTP"):
             verification_status = check_otp(st.session_state["phone_number"], otp_input)
             if verification_status == 'approved':
@@ -205,16 +202,16 @@ else:
 
     def main_page():
         # Initialize session state
-        if 'logged_in' not in st.session_state:
-            st.session_state.logged_in = False
-        if 'otp_sent' not in st.session_state:
-            st.session_state.otp_sent = False
+    if 'logged_in' not in st.session_state:
+        st.session_state.logged_in = False
+    if 'otp_sent' not in st.session_state:
+        st.session_state.otp_sent = False
 
-        if not st.session_state.logged_in:
-            if not st.session_state.otp_sent:
-                initiate_otp_authentication()
-            else:
-                verify_otp()
+    if not st.session_state.logged_in:
+        if not st.session_state.otp_sent:
+            initiate_otp_authentication()
+        else:
+            verify_otp()
         else:
             st.markdown(
                 """
