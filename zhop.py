@@ -4,7 +4,6 @@ import plotly.express as px
 from PIL import Image
 import requests
 import re
-from twilio.rest import Client
 import random
 import os
 
