@@ -10,28 +10,11 @@ import random
 
 st.set_page_config(layout="wide", page_title="Hopcharge Dashboard", page_icon=":bar_chart:")
 
-# Twilio configuration
-TWILIO_ACCOUNT_SID = 'ACa550718ba3d216c5387a75eefe36cd93'
-TWILIO_AUTH_TOKEN = '96be6e844994ff95fa5f28e1a53ba271'
-TWILIO_SERVICE_SID = 'VAe629db127449b26b2486c3b6877502bb'
-USER_PHONE_NUMBERS = ['+917206174107', '+918168483335']
+# OTPLESS configuration
+OTPLESS_APP_ID = 'LGKKX2K2DHXYIVBZUG6T'
 
-
-
-# Send OTP via Twilio
-def send_otp(phone_number):
-    client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-    verification = client.verify.services(TWILIO_SERVICE_SID).verifications.create(to=phone_number, channel='sms')
-    return verification.sid
-
-# Check OTP via Twilio
-def check_otp(phone_number, otp):
-    client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-    verification_check = client.verify.services(TWILIO_SERVICE_SID).verification_checks.create(to=phone_number, code=otp)
-    return verification_check.status
-
-# Function to initiate OTP authentication
-def initiate_otp_authentication():
+# Function to initiate OTPLESS authentication
+def initiate_otpless_authentication():
     st.markdown(
         """
             <style>
@@ -48,31 +31,27 @@ def initiate_otp_authentication():
 
     image = Image.open('LOGO HOPCHARGE-03.png')
     col2.image(image, use_column_width=True)
-    col2.markdown("<h2 style='text-align: center;'>ECMS OTP Login</h2>", unsafe_allow_html=True)
+    col2.markdown("<h2 style='text-align: center;'>ECMS OTPLESS Login</h2>", unsafe_allow_html=True)
     image = Image.open('roaming vans.png')
     col1.image(image, use_column_width=True)
 
     with col2:
-        phone_number = st.selectbox("Select Phone Number", USER_PHONE_NUMBERS)
+        phone_number = st.text_input("Enter Phone Number (with country code)")
     
-    if st.button("Send OTP"):
-        send_otp(phone_number)
+    if st.button("Login with OTPLESS"):
+        otpless_url = f"https://otpless.com/appid/{OTPLESS_APP_ID}?phone_number={phone_number}"
+        st.write(f"Click [here]({otpless_url}) to log in via OTPLESS.")
         st.session_state["phone_number"] = phone_number
         st.session_state["otp_sent"] = True
-        st.success("OTP has been sent to your registered phone number.")
 
-# Function to verify OTP
-def verify_otp():
-    col1, col2, col3 = st.columns(3)
-    with col2:
-        otp_input = st.text_input("Enter OTP", type="password")
-        if st.button("Verify OTP"):
-            verification_status = check_otp(st.session_state["phone_number"], otp_input)
-            if verification_status == 'approved':
-                st.session_state["logged_in"] = True
-                st.success("OTP verified successfully.")
-            else:
-                st.warning("Invalid OTP. Please try again.")
+# Function to verify OTPLESS response
+def verify_otpless():
+    query_params = st.experimental_get_query_params()
+    if "otpless_token" in query_params:
+        st.session_state["logged_in"] = True
+        st.success("Successfully logged in via OTPLESS.")
+    else:
+        st.warning("Failed to log in via OTPLESS. Please try again.")
 
 # Function to clean license plates
 def clean_license_plate(plate):
@@ -209,9 +188,9 @@ else:
 
         if not st.session_state.logged_in:
             if not st.session_state.otp_sent:
-                initiate_otp_authentication()
+                initiate_otpless_authentication()
             else:
-                verify_otp()
+                verify_otpless()
         else:
             st.markdown(
                 """
