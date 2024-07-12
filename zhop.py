@@ -139,7 +139,7 @@ else:
         r = ",".join([s[x - 2:x] for x in range(-3, -len(s), -2)][::-1] + [s[-3:]])
         return "".join([r] + d)
 
-    def check_credentials():
+        def check_credentials():
         st.markdown(
             """
                 <style>
@@ -147,7 +147,6 @@ else:
                         padding-top: {padding_top}rem;
                         padding-bottom: {padding_bottom}rem;
                         }}
-
                 </style>""".format(
                 padding_top=1, padding_bottom=1
             ),
@@ -164,23 +163,25 @@ else:
 
         with col2:
             username = st.text_input("Username")
-            password = st.text_input(
-                "Password", type="password")
+            password = st.text_input("Password", type="password")
+
         flag = 0
-        if username in st.secrets["username"] and password in st.secrets["password"]:
-            index = st.secrets["username"].index(username)
-            if st.secrets["password"][index] == password:
+        usernames = st.secrets.get("username", {})
+        passwords = st.secrets.get("password", {})
+
+        if username in usernames and password in passwords:
+            if passwords[usernames.index(username)] == password:
                 st.session_state["logged_in"] = True
                 flag = 1
             else:
                 col2.warning("Invalid username or password.")
                 flag = 0
-        elif username not in st.secrets["username"] or password not in st.secrets["password"]:
+        else:
             col2.warning("Invalid username or password.")
             flag = 0
-        ans = [username, flag]
-        return ans
 
+        ans = [username, flag]
+        return ans    
 
     def main_page(username):
         st.markdown(
