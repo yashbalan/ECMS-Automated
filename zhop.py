@@ -206,6 +206,9 @@ else:
         col1, col2, col3, col4, col5 = st.columns(5)
         image = Image.open('LOGO HOPCHARGE-03.png')
         col1.image(image, use_column_width=True)
+        col5.write("\n")
+        if col5.button("Logout"):
+            st.session_state.logged_in = False
 
         st.markdown("<h2 style='text-align: left;'>EV Charging Management System</h2>", unsafe_allow_html=True)
 
@@ -220,8 +223,15 @@ else:
         with col2:
             end_date = st.date_input('End Date', min_value=min_date, max_value=max_date, value=max_date,
                                      key="epod-date-end")
+        def get_epods_by_username(df, input_username):
+            filtered_df = df[df['username'].str.contains(input_username, na=False)]
+            epod_list = filtered_df['EPOD Name'].tolist()
 
-        epods = df1['EPOD Name'].tolist()
+            return epod_list
+
+        epods = get_epods_by_username(df1, username)
+
+        #epods = df1['EPOD Name'].tolist()
 
         with col3:
             EPod = st.multiselect(label='Select The EPod', options=['All'] + epods, default='All')
