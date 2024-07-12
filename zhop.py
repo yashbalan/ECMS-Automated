@@ -6,6 +6,7 @@ import requests
 import re
 from twilio.rest import Client
 import random
+import os
 
 
 st.set_page_config(layout="wide", page_title="Hopcharge Dashboard", page_icon=":bar_chart:")
