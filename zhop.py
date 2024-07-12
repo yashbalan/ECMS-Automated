@@ -10,87 +10,6 @@ import random
 
 st.set_page_config(layout="wide", page_title="Hopcharge Dashboard", page_icon=":bar_chart:")
 
-import firebase_admin
-from firebase_admin import credentials, auth as admin_auth
-import pyrebase
-
-# Path to your service account key JSON file
-SERVICE_ACCOUNT_KEY = r"hopcharge-ecms-firebase-adminsdk-v6db1-1d76969b4b.json"
-
-# Initialize Firebase Admin SDK
-cred = credentials.Certificate(SERVICE_ACCOUNT_KEY)
-firebase_admin.initialize_app(cred)
-
-# Firebase configuration for client-side operations
-firebaseConfig = {
-    "apiKey": "AIzaSyA2jF3fovbqY1cjuW8Z5VMtKG_e1gqisdI",
-    "authDomain": "hopcharge-ecms.firebaseapp.com",
-    "databaseURL": "https://hopcharge-ecms.firebaseio.com",  # Replace with your actual database URL
-    "projectId": "hopcharge-ecms",
-    "storageBucket": "hopcharge-ecms.appspot.com",
-    "messagingSenderId": "284192454217",
-    "appId": "1:284192454217:web:22ff10cd68580a1cec3198",
-    "measurementId": "G-YVNJXKGM9X"
-}
-
-# Initialize Firebase for client-side operations
-firebase = pyrebase.initialize_app(firebaseConfig)
-client_auth = firebase.auth()
-
-# Registered users
-REGISTERED_USERS = {
-    "+917206174107": "yashbalan912005@gmail.com",
-    "+918168483335": "vishalsaini1272007@gmail.com"
-}
-
-# Function to initiate Firebase OTP authentication
-def initiate_firebase_authentication():
-    st.markdown(
-        """
-            <style>
-                .appview-container .main .block-container {{
-                    padding-top: {padding_top}rem;
-                    padding-bottom: {padding_bottom}rem;
-                    }}
-            </style>""".format(
-            padding_top=1, padding_bottom=1
-        ),
-        unsafe_allow_html=True,
-    )
-    col1, col2, col3 = st.columns(3)
-
-    image = Image.open('LOGO HOPCHARGE-03.png')
-    col2.image(image, use_column_width=True)
-    col2.markdown("<h2 style='text-align: center;'>ECMS Firebase OTP Login</h2>", unsafe_allow_html=True)
-    image = Image.open('roaming vans.png')
-    col1.image(image, use_column_width=True)
-
-    with col2:
-        phone_number = st.text_input("Enter Phone Number (with country code)")
-        email = st.text_input("Enter Email")
-
-    if st.button("Send OTP"):
-        if phone_number in REGISTERED_USERS and REGISTERED_USERS[phone_number] == email:
-            st.session_state["phone_number"] = phone_number
-            st.session_state["email"] = email
-            st.session_state["otp_sent"] = True
-            # Here we simulate OTP sending, in reality you should integrate with an SMS service
-            st.session_state["verification_code"] = "123456"
-            st.success("OTP has been sent to your registered phone number.")
-        else:
-            st.warning("This phone number or email is not registered. Please use a registered phone number and email.")
-
-# Function to verify Firebase OTP
-def verify_firebase_otp():
-    col1, col2, col3 = st.columns(3)
-    with col2:
-        otp_input = st.text_input("Enter OTP", type="password")
-        if st.button("Verify OTP"):
-            if otp_input == st.session_state.get("verification_code"):
-                st.session_state["logged_in"] = True
-                st.success("OTP verified successfully.")
-            else:
-                st.warning("Invalid OTP. Please try again.")
 
 # Function to clean license plates
 def clean_license_plate(plate):
@@ -219,157 +138,145 @@ else:
         return "".join([r] + d)
 
     def main_page():
-        # Initialize session state
-        if 'logged_in' not in st.session_state:
-            st.session_state.logged_in = False
-        if 'otp_sent' not in st.session_state:
-            st.session_state.otp_sent = False
+        st.markdown(
+            """
+            <script>
+            function refresh() {
+                window.location.reload();
+            }
+            setTimeout(refresh, 120000);
+            </script>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            """
+            <style>
+                .appview-container .main .block-container {{
+                    padding-top: {padding_top}rem;
+                    padding-bottom: {padding_bottom}rem;
+                }}
+            </style>
+            """.format(padding_top=1, padding_bottom=1),
+            unsafe_allow_html=True,
+        )
+        col1, col2, col3, col4, col5 = st.columns(5)
+        image = Image.open('LOGO HOPCHARGE-03.png')
+        col1.image(image, use_column_width=True)
 
-        if not st.session_state.logged_in:
-            if not st.session_state.otp_sent:
-                initiate_firebase_authentication()
-            else:
-                verify_firebase_otp()
-        else:
-            st.markdown(
-                """
-                <script>
-                function refresh() {
-                    window.location.reload();
-                }
-                setTimeout(refresh, 120000);
-                </script>
-                """,
-                unsafe_allow_html=True,
+        st.markdown("<h2 style='text-align: left;'>EV Charging Management System</h2>", unsafe_allow_html=True)
+
+        col1, col2, col3, col4, col5, col6 = st.columns(6)
+
+        with col1:
+            final_df['Actual Date'] = pd.to_datetime(final_df['Actual Date'], errors='coerce')
+            min_date = final_df['Actual Date'].min().date()
+            max_date = final_df['Actual Date'].max().date()
+            start_date = st.date_input('Start Date', min_value=min_date, max_value=max_date, value=min_date,
+                                       key="epod-date-start")
+        with col2:
+            end_date = st.date_input('End Date', min_value=min_date, max_value=max_date, value=max_date,
+                                     key="epod-date-end")
+
+        epods = df1['EPOD Name'].tolist()
+
+        with col3:
+            EPod = st.multiselect(label='Select The EPod', options=['All'] + epods, default='All')
+        if 'All' in EPod:
+            EPod = epods
+
+        start_date = pd.to_datetime(start_date)
+        end_date = pd.to_datetime(end_date)
+        filtered_data = final_df[(final_df['Actual Date'] >= start_date) & (final_df['Actual Date'] <= end_date)]
+
+        filtered_data = filtered_data[(filtered_data['EPOD Name'].isin(EPod))]
+        filtered_data['Actual Date'] = pd.to_datetime(filtered_data['Actual Date'])
+        final_df_count = filtered_data.groupby(['Actual Date', 'Customer Location City']).size().reset_index(
+            name='Session Count')
+        final_df_count['Actual Date'] = final_df_count['Actual Date'].dt.strftime('%d/%m/%y')
+
+        sumcount = final_df_count['Session Count'].sum()
+        col4.metric("Total Sessions of EPods", formatINR(sumcount))
+        revenue = sumcount * 150
+        revenue = formatINR(revenue)
+        col5.metric("Total Revenue", f"\u20B9{revenue}")
+
+        fig = px.bar(final_df_count, x='Actual Date', y='Session Count',
+                     color_discrete_map={'Delhi': '#243465', 'Gurugram': ' #5366a0', 'Noida': '#919fc8'},
+                     color='Customer Location City', text=final_df_count['Session Count'])
+        total_counts = final_df_count.groupby('Actual Date')['Session Count'].sum().reset_index()
+
+        for i, date in enumerate(total_counts['Actual Date']):
+            fig.add_annotation(
+                x=date,
+                y=total_counts['Session Count'][i] + 0.9,
+                text=str(total_counts['Session Count'][i]),
+                showarrow=False,
+                align='center',
+                font_size=16,
+                font=dict(color='black')
             )
-            st.markdown(
-                """
-                <style>
-                    .appview-container .main .block-container {{
-                        padding-top: {padding_top}rem;
-                        padding-bottom: {padding_bottom}rem;
-                    }}
-                </style>
-                """.format(padding_top=1, padding_bottom=1),
-                unsafe_allow_html=True,
-            )
-            col1, col2, col3, col4, col5 = st.columns(5)
-            image = Image.open('LOGO HOPCHARGE-03.png')
-            col1.image(image, use_column_width=True)
 
-            st.markdown("<h2 style='text-align: left;'>EV Charging Management System</h2>", unsafe_allow_html=True)
+        fig.update_layout(
+            title='Session Count of All EPods till Date',
+            xaxis_title='Date',
+            yaxis_title='Session Count',
+            xaxis_tickangle=-45,
+            width=1200,
+            legend_title='HSZs: ',
+        )
 
+        with col1:
+            st.plotly_chart(fig, use_container_width=False)
+
+        filtered_data = final_df[final_df['EPOD Name'].isin(EPod)]
+
+        if len(EPod) > 1:
             col1, col2, col3, col4, col5, col6 = st.columns(6)
+            filtered_data = filtered_data.sort_values('EPOD Name')
+            for epod in filtered_data['EPOD Name'].unique():
+                with col1:
+                    st.subheader(epod)
+                filtered_data = final_df[
+                    (final_df['Actual Date'] >= start_date) & (final_df['Actual Date'] <= end_date)]
+                final_df_count = filtered_data[filtered_data['EPOD Name'] == epod].groupby(
+                    ['Actual Date', 'Customer Location City']).size().reset_index(name='Session Count')
+                final_df_count['Actual Date'] = final_df_count['Actual Date'].dt.strftime('%d/%m/%y')
+                final_df_count = final_df_count.sort_values('Actual Date', ascending=True)
+                sumcount = final_df_count['Session Count'].sum()
+                revenue = sumcount * 150
+                revenue = formatINR(revenue)
+                sumcount = formatINR(sumcount)
+                col1.metric(f"Total Sessions by {epod}", sumcount)
+                col1.metric("Total Revenue", f"\u20B9{revenue}")
 
-            with col1:
-                final_df['Actual Date'] = pd.to_datetime(final_df['Actual Date'], errors='coerce')
-                min_date = final_df['Actual Date'].min().date()
-                max_date = final_df['Actual Date'].max().date()
-                start_date = st.date_input('Start Date', min_value=min_date, max_value=max_date, value=min_date,
-                                           key="epod-date-start")
-            with col2:
-                end_date = st.date_input('End Date', min_value=min_date, max_value=max_date, value=max_date,
-                                         key="epod-date-end")
+                fig = px.bar(final_df_count, x='Actual Date', y='Session Count', color='Customer Location City',
+                             color_discrete_map={'Delhi': '#243465', 'Gurugram': ' #5366a0', 'Noida': '#919fc8'},
+                             text='Session Count')
+                total_counts = final_df_count.groupby('Actual Date')['Session Count'].sum().reset_index()
 
-            epods = df1['EPOD Name'].tolist()
-
-            with col3:
-                EPod = st.multiselect(label='Select The EPod', options=['All'] + epods, default='All')
-            if 'All' in EPod:
-                EPod = epods
-
-            start_date = pd.to_datetime(start_date)
-            end_date = pd.to_datetime(end_date)
-            filtered_data = final_df[(final_df['Actual Date'] >= start_date) & (final_df['Actual Date'] <= end_date)]
-
-            filtered_data = filtered_data[(filtered_data['EPOD Name'].isin(EPod))]
-            filtered_data['Actual Date'] = pd.to_datetime(filtered_data['Actual Date'])
-            final_df_count = filtered_data.groupby(['Actual Date', 'Customer Location City']).size().reset_index(
-                name='Session Count')
-            final_df_count['Actual Date'] = final_df_count['Actual Date'].dt.strftime('%d/%m/%y')
-
-            sumcount = final_df_count['Session Count'].sum()
-            col4.metric("Total Sessions of EPods", formatINR(sumcount))
-            revenue = sumcount * 150
-            revenue = formatINR(revenue)
-            col5.metric("Total Revenue", f"\u20B9{revenue}")
-
-            fig = px.bar(final_df_count, x='Actual Date', y='Session Count',
-                         color_discrete_map={'Delhi': '#243465', 'Gurugram': ' #5366a0', 'Noida': '#919fc8'},
-                         color='Customer Location City', text=final_df_count['Session Count'])
-            total_counts = final_df_count.groupby('Actual Date')['Session Count'].sum().reset_index()
-
-            for i, date in enumerate(total_counts['Actual Date']):
-                fig.add_annotation(
-                    x=date,
-                    y=total_counts['Session Count'][i] + 0.9,
-                    text=str(total_counts['Session Count'][i]),
-                    showarrow=False,
-                    align='center',
-                    font_size=16,
-                    font=dict(color='black')
-                )
-
-            fig.update_layout(
-                title='Session Count of All EPods till Date',
-                xaxis_title='Date',
-                yaxis_title='Session Count',
-                xaxis_tickangle=-45,
-                width=1200,
-                legend_title='HSZs: ',
-            )
-
-            with col1:
-                st.plotly_chart(fig, use_container_width=False)
-
-            filtered_data = final_df[final_df['EPOD Name'].isin(EPod)]
-
-            if len(EPod) > 1:
-                col1, col2, col3, col4, col5, col6 = st.columns(6)
-                filtered_data = filtered_data.sort_values('EPOD Name')
-                for epod in filtered_data['EPOD Name'].unique():
-                    with col1:
-                        st.subheader(epod)
-                    filtered_data = final_df[
-                        (final_df['Actual Date'] >= start_date) & (final_df['Actual Date'] <= end_date)]
-                    final_df_count = filtered_data[filtered_data['EPOD Name'] == epod].groupby(
-                        ['Actual Date', 'Customer Location City']).size().reset_index(name='Session Count')
-                    final_df_count['Actual Date'] = final_df_count['Actual Date'].dt.strftime('%d/%m/%y')
-                    final_df_count = final_df_count.sort_values('Actual Date', ascending=True)
-                    sumcount = final_df_count['Session Count'].sum()
-                    revenue = sumcount * 150
-                    revenue = formatINR(revenue)
-                    sumcount = formatINR(sumcount)
-                    col1.metric(f"Total Sessions by {epod}", sumcount)
-                    col1.metric("Total Revenue", f"\u20B9{revenue}")
-
-                    fig = px.bar(final_df_count, x='Actual Date', y='Session Count', color='Customer Location City',
-                                 color_discrete_map={'Delhi': '#243465', 'Gurugram': ' #5366a0', 'Noida': '#919fc8'},
-                                 text='Session Count')
-                    total_counts = final_df_count.groupby('Actual Date')['Session Count'].sum().reset_index()
-
-                    for i, date in enumerate(total_counts['Actual Date']):
-                        fig.add_annotation(
-                            x=date,
-                            y=total_counts['Session Count'][i] + 0.2,
-                            text=str(total_counts['Session Count'][i]),
-                            showarrow=False,
-                            align='center',
-                            font_size=18,
-                            font=dict(color='black')
-                        )
-
-                    fig.update_xaxes(categoryorder='category ascending')
-                    fig.update_layout(
-                        title='Session Count by Date',
-                        xaxis_title='Date',
-                        yaxis_title=f'Session Count of {epod}',
-                        xaxis_tickangle=-45,
-                        width=1200,
-                        legend_title='HSZs: '
+                for i, date in enumerate(total_counts['Actual Date']):
+                    fig.add_annotation(
+                        x=date,
+                        y=total_counts['Session Count'][i] + 0.2,
+                        text=str(total_counts['Session Count'][i]),
+                        showarrow=False,
+                        align='center',
+                        font_size=18,
+                        font=dict(color='black')
                     )
-                    with col1:
-                        st.plotly_chart(fig)
+
+                fig.update_xaxes(categoryorder='category ascending')
+                fig.update_layout(
+                    title='Session Count by Date',
+                    xaxis_title='Date',
+                    yaxis_title=f'Session Count of {epod}',
+                    xaxis_tickangle=-45,
+                    width=1200,
+                    legend_title='HSZs: '
+                )
+                with col1:
+                    st.plotly_chart(fig)
 
 
     # Run the main page function
