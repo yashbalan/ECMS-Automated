@@ -202,16 +202,16 @@ else:
 
     def main_page():
         # Initialize session state
-    if 'logged_in' not in st.session_state:
-        st.session_state.logged_in = False
-    if 'otp_sent' not in st.session_state:
-        st.session_state.otp_sent = False
+        if 'logged_in' not in st.session_state:
+            st.session_state.logged_in = False
+        if 'otp_sent' not in st.session_state:
+            st.session_state.otp_sent = False
 
-    if not st.session_state.logged_in:
-        if not st.session_state.otp_sent:
-            initiate_otp_authentication()
-        else:
-            verify_otp()
+        if not st.session_state.logged_in:
+            if not st.session_state.otp_sent:
+                initiate_otp_authentication()
+            else:
+                verify_otp()
         else:
             st.markdown(
                 """
