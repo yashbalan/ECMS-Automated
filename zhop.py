@@ -10,47 +10,6 @@ import random
 
 st.set_page_config(layout="wide", page_title="Hopcharge Dashboard", page_icon=":bar_chart:")
     
-def check_credentials():
-        st.markdown(
-            """
-                <style>
-                    .appview-container .main .block-container {{
-                        padding-top: {padding_top}rem;
-                        padding-bottom: {padding_bottom}rem;
-                        }}
-
-                </style>""".format(
-                padding_top=1, padding_bottom=1
-            ),
-            unsafe_allow_html=True,
-        )
-        col1, col2, col3 = st.columns(3)
-
-        image = Image.open('LOGO HOPCHARGE-03.png')
-        col2.image(image, use_column_width=True)
-        col2.markdown(
-            "<h2 style='text-align: center;'>ECMS Login</h2>", unsafe_allow_html=True)
-        image = Image.open('roaming vans.png')
-        col1.image(image, use_column_width=True)
-
-        with col2:
-            username = st.text_input("Username")
-            password = st.text_input(
-                "Password", type="password")
-        flag = 0
-        if username in st.secrets["username"] and password in st.secrets["password"]:
-            index = st.secrets["username"].index(username)
-            if st.secrets["password"][index] == password:
-                st.session_state["logged_in"] = True
-                flag = 1
-            else:
-                col2.warning("Invalid username or password.")
-                flag = 0
-        elif username not in st.secrets["username"] or password not in st.secrets["password"]:
-            col2.warning("Invalid username or password.")
-            flag = 0
-        ans = [username, flag]
-        return ans
 
 
 # Function to clean license plates
@@ -178,6 +137,49 @@ else:
         s, *d = str(number).partition(".")
         r = ",".join([s[x - 2:x] for x in range(-3, -len(s), -2)][::-1] + [s[-3:]])
         return "".join([r] + d)
+
+    def check_credentials():
+        st.markdown(
+            """
+                <style>
+                    .appview-container .main .block-container {{
+                        padding-top: {padding_top}rem;
+                        padding-bottom: {padding_bottom}rem;
+                        }}
+
+                </style>""".format(
+                padding_top=1, padding_bottom=1
+            ),
+            unsafe_allow_html=True,
+        )
+        col1, col2, col3 = st.columns(3)
+
+        image = Image.open('LOGO HOPCHARGE-03.png')
+        col2.image(image, use_column_width=True)
+        col2.markdown(
+            "<h2 style='text-align: center;'>ECMS Login</h2>", unsafe_allow_html=True)
+        image = Image.open('roaming vans.png')
+        col1.image(image, use_column_width=True)
+
+        with col2:
+            username = st.text_input("Username")
+            password = st.text_input(
+                "Password", type="password")
+        flag = 0
+        if username in st.secrets["username"] and password in st.secrets["password"]:
+            index = st.secrets["username"].index(username)
+            if st.secrets["password"][index] == password:
+                st.session_state["logged_in"] = True
+                flag = 1
+            else:
+                col2.warning("Invalid username or password.")
+                flag = 0
+        elif username not in st.secrets["username"] or password not in st.secrets["password"]:
+            col2.warning("Invalid username or password.")
+            flag = 0
+        ans = [username, flag]
+        return ans
+
 
     def main_page(username):
         st.markdown(
