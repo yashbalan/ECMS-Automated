@@ -14,9 +14,20 @@ import firebase_admin
 from firebase_admin import credentials, auth as admin_auth
 
 
+# Path to your service account key JSON file
+SERVICE_ACCOUNT_KEY = r"hopcharge-ecms-firebase-adminsdk-v6db1-1d76969b4b.json"
+
+# Firebase configuration (if using a Realtime Database)
+firebaseConfig = {
+    "databaseURL": "https://hopcharge-ecms.firebaseio.com"  # Replace with your actual database URL if needed
+}
+
 # Initialize Firebase Admin SDK
-cred = credentials.Certificate(r"hopcharge-ecms-firebase-adminsdk-v6db1-1d76969b4b.json")
-firebase_admin.initialize_app(cred)
+try:
+    cred = credentials.Certificate(SERVICE_ACCOUNT_KEY)
+    firebase_admin.initialize_app(cred, firebaseConfig)
+except ValueError as e:
+    st.error(f"Failed to initialize Firebase Admin SDK: {e}")
 
 # Registered users
 REGISTERED_USERS = {
