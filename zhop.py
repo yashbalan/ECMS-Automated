@@ -13,6 +13,12 @@ st.set_page_config(layout="wide", page_title="Hopcharge Dashboard", page_icon=":
 # OTPLESS configuration
 OTPLESS_APP_ID = 'LGKKX2K2DHXYIVBZUG6T'
 
+# Registered users
+REGISTERED_USERS = {
+    "+917206174107": "yashbalan912005@gmail.com",
+    "+918168483335": "vishalsaini1272007@gmail.com"
+}
+
 # Function to initiate OTPLESS authentication
 def initiate_otpless_authentication():
     st.markdown(
@@ -37,12 +43,15 @@ def initiate_otpless_authentication():
 
     with col2:
         phone_number = st.text_input("Enter Phone Number (with country code)")
-    
+
     if st.button("Login with OTPLESS"):
-        otpless_url = f"https://otpless.com/appid/{OTPLESS_APP_ID}?phone_number={phone_number}"
-        st.write(f"Click [here]({otpless_url}) to log in via OTPLESS.")
-        st.session_state["phone_number"] = phone_number
-        st.session_state["otp_sent"] = True
+        if phone_number in REGISTERED_USERS:
+            otpless_url = f"https://otpless.com/appid/{OTPLESS_APP_ID}?phone_number={phone_number}"
+            st.write(f"Click [here]({otpless_url}) to log in via OTPLESS.")
+            st.session_state["phone_number"] = phone_number
+            st.session_state["otp_sent"] = True
+        else:
+            st.warning("This phone number is not registered. Please use a registered phone number.")
 
 # Function to verify OTPLESS response
 def verify_otpless():
