@@ -13,7 +13,7 @@ st.set_page_config(layout="wide", page_title="Hopcharge Dashboard", page_icon=":
 # Twilio configuration
 TWILIO_ACCOUNT_SID = 'ACa550718ba3d216c5387a75eefe36cd93'
 TWILIO_AUTH_TOKEN = '96be6e844994ff95fa5f28e1a53ba271'
-TWILIO_SERVICE_SID = 'VAc0fd73c1543b8f3b845aa8d5c717015d'
+TWILIO_SERVICE_SID = 'VAe629db127449b26b2486c3b6877502bb'
 USER_PHONE_NUMBERS = ['+917206174107', '+918168483335']
 
 
