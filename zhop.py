@@ -12,7 +12,7 @@ st.set_page_config(layout="wide", page_title="Hopcharge Dashboard", page_icon=":
 
 import firebase_admin
 from firebase_admin import credentials, auth as admin_auth
-import pyrebase
+
 
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate(r"C:\Users\DELL\Downloads\hopcharge-ecms-firebase-adminsdk-v6db1-1d76969b4b.json")
