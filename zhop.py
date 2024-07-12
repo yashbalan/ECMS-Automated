@@ -14,22 +14,6 @@ import firebase_admin
 from firebase_admin import credentials, auth as admin_auth
 import pyrebase
 
-# Firebase configuration
-firebaseConfig = {
-    "apiKey": "AIzaSyA2jF3fovbqY1cjuW8Z5VMtKG_e1gqisdI",
-    "authDomain": "hopcharge-ecms.firebaseapp.com",
-    "databaseURL": "https://hopcharge-ecms.firebaseio.com",
-    "projectId": "hopcharge-ecms",
-    "storageBucket": "hopcharge-ecms.appspot.com",
-    "messagingSenderId": "284192454217",
-    "appId": "1:284192454217:web:22ff10cd68580a1cec3198",
-    "measurementId": "G-YVNJXKGM9X"
-}
-
-# Initialize Firebase
-firebase = pyrebase.initialize_app(firebaseConfig)
-auth = firebase.auth()
-
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate(r"C:\Users\DELL\Downloads\hopcharge-ecms-firebase-adminsdk-v6db1-1d76969b4b.json")
 firebase_admin.initialize_app(cred)
@@ -71,8 +55,8 @@ def initiate_firebase_authentication():
             st.session_state["phone_number"] = phone_number
             st.session_state["email"] = email
             st.session_state["otp_sent"] = True
-            verification_id = auth.send_verification_code(phone_number)
-            st.session_state["verification_id"] = verification_id
+            # Here we simulate OTP sending, in reality you should integrate with an SMS service
+            st.session_state["verification_code"] = "123456"
             st.success("OTP has been sent to your registered phone number.")
         else:
             st.warning("This phone number or email is not registered. Please use a registered phone number and email.")
@@ -83,13 +67,11 @@ def verify_firebase_otp():
     with col2:
         otp_input = st.text_input("Enter OTP", type="password")
         if st.button("Verify OTP"):
-            verification_id = st.session_state.get("verification_id")
-            try:
-                auth.verify_id_token(verification_id, otp_input)
+            if otp_input == st.session_state.get("verification_code"):
                 st.session_state["logged_in"] = True
                 st.success("OTP verified successfully.")
-            except Exception as e:
-                st.warning(f"Invalid OTP. Please try again. Error: {str(e)}")
+            else:
+                st.warning("Invalid OTP. Please try again.")
 
 # Function to clean license plates
 def clean_license_plate(plate):
