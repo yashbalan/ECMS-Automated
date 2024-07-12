@@ -15,7 +15,7 @@ from firebase_admin import credentials, auth as admin_auth
 
 
 # Initialize Firebase Admin SDK
-cred = credentials.Certificate(r"C:\Users\DELL\Downloads\hopcharge-ecms-firebase-adminsdk-v6db1-1d76969b4b.json")
+cred = credentials.Certificate(r"hopcharge-ecms-firebase-adminsdk-v6db1-1d76969b4b.json")
 firebase_admin.initialize_app(cred)
 
 # Registered users
